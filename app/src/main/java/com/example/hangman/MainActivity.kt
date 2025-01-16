@@ -66,10 +66,17 @@ fun App() {
             welcomePage(onNextScreen = {navController.navigate("game")})
         }
         composable (route = "game"){
-            game(gameOverScreen = {navController.navigate("gameOver")}, welcomeScreen = {navController.navigate("welcomePage")})
+            game(gameOverScreen = {navController.navigate("gameOver")},
+                welcomeScreen = {navController.navigate("welcomePage")},
+                {navController.navigate("winPage")})
         }
         composable (route = "gameOver"){
-            gameOver(onNextScreen = {navController.navigate("game")}, welcomeScreen = {navController.navigate("welcomePage")})
+            gameOver(onNextScreen = {navController.navigate("game")},
+                welcomeScreen = {navController.navigate("welcomePage")})
+        }
+        composable (route = "winPage"){
+            winPage(onNextScreen = {navController.navigate("game")},
+                welcomeScreen = {navController.navigate("welcomePage")})
         }
     }
 }
@@ -81,7 +88,7 @@ public fun getWords(context: Context): MutableList<String>{
     try{
         val assetManager = context.assets
         val inputStream = assetManager.open("Words.txt")
-        inputStream.bufferedReader().forEachLine { wordList.add(it)}
+        inputStream.bufferedReader().forEachLine { wordList.add(it.uppercase())}
     } catch (e: IOException) {
         e.printStackTrace()
     }
@@ -89,7 +96,7 @@ public fun getWords(context: Context): MutableList<String>{
 }
 
 @Composable
-fun game(gameOverScreen: () -> Unit, welcomeScreen: () -> Unit) {
+fun game(gameOverScreen: () -> Unit, welcomeScreen: () -> Unit, winPage: () -> Unit) {
 
     val context = LocalContext.current
     val wordList = getWords(context)
@@ -121,13 +128,15 @@ fun game(gameOverScreen: () -> Unit, welcomeScreen: () -> Unit) {
 
         // User InputLetter Field
         OutlinedTextField(
-            value = InputLetter,
-            onValueChange = {
-                InputLetter = it },
+            value = InputLetter.uppercase(),
+            onValueChange = { if(it.length < 2) {
+                InputLetter = it.uppercase() }
+            },
             label = { Text("type a letter") },
             modifier = Modifier
                 .fillMaxWidth(0.5f),
             keyboardOptions = KeyboardOptions.Default
+
         )
         Button(
             onClick = {
@@ -144,17 +153,19 @@ fun game(gameOverScreen: () -> Unit, welcomeScreen: () -> Unit) {
                         }
                     }
                 } else{
-                    incorrectCounter+=1
-                    incorrectLetters = "${incorrectLetters} ${InputLetter}"
+                    if(InputLetter !in incorrectLetters){
+                        incorrectCounter+=1
+                        incorrectLetters = "${incorrectLetters} ${InputLetter}"}
                     if (incorrectCounter == maxCounter){
                         // User has lost
                         gameOverScreen()
 
-                    } else if (word == progress) {
-                        // User has won
                     }
                 }
                 InputLetter = ""
+                if (word == progress) {
+                winPage()
+            }
 
             }
         ) {
@@ -224,6 +235,34 @@ fun gameOver(onNextScreen: () -> Unit, welcomeScreen: () -> Unit){
     }
 
         }
+
+@Composable
+fun winPage(onNextScreen: () -> Unit, welcomeScreen: () -> Unit){
+    Column (
+        horizontalAlignment = Alignment.CenterHorizontally,
+        modifier = Modifier.fillMaxSize()
+    ){
+        Text(text = "You win!\n💪🏽",
+            style = MaterialTheme.typography.headlineMedium,
+            modifier = Modifier
+                .padding(top = 100.dp))
+
+        Button(
+            onClick = {onNextScreen()}
+        ){
+            Text(text="Try Again")
+        }
+        Button(
+            onClick = {welcomeScreen()}
+        ){
+            Text(text="Exit")
+        }
+
+    }
+
+}
+
+
 
 
 
