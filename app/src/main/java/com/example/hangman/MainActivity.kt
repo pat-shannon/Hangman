@@ -1,6 +1,7 @@
 package com.example.hangman
 
 import android.os.Bundle
+import android.renderscript.ScriptGroup.Input
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -17,6 +18,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -67,11 +69,9 @@ fun App() {
 @Composable
 fun game() {
     var word by remember {mutableStateOf("temporary")}
-    var progress by remember {mutableStateOf("")}
-    for(letter in word){
-        progress += ("_")
+    var progress by remember {mutableStateOf("_".repeat(word.length))}
+    var incorrectCounter by remember { mutableIntStateOf(0)}
 
-    }
     println(progress)
     var InputLetter by remember {mutableStateOf("temporary")}
 
@@ -84,7 +84,7 @@ fun game() {
             modifier = Modifier
                 .padding(top = 100.dp))
 
-        Text(text = "*".repeat(word.length),
+        Text(text = progress,
             style = MaterialTheme.typography.headlineMedium,
             modifier = Modifier.padding(top = 100.dp))
 
@@ -99,6 +99,33 @@ fun game() {
                 .fillMaxWidth(0.5f),
             keyboardOptions = KeyboardOptions.Default
         )
+        Button(
+            onClick = {
+                var checkWord = word
+
+                if (InputLetter in word){
+                    for (letter in word){
+                        if (InputLetter == letter.toString()){
+                            var index = checkWord.indexOf(letter)
+                            println("checkWord was "+ checkWord)
+                            checkWord = checkWord.replaceRange(index, index+1, "*")
+                            println("checkWord goes to -> "+ checkWord)
+                            progress = progress.replaceRange(index, index+1, letter.toString())
+                        }
+                    }
+                } else{
+                    incorrectCounter+=1
+                    if (incorrectCounter == 8){
+                        // END GAME
+                    }
+                }
+
+
+            }
+        ) {
+            Text(text="Submit")
+        }
+        Text(text="Incorrect Attempts: ${incorrectCounter}")
     }
 }
 
