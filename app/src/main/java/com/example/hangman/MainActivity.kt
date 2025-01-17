@@ -115,8 +115,15 @@ fun game(gameOverScreen: (String) -> Unit, welcomeScreen: () -> Unit, winPage: (
     var InputLetter by remember {mutableStateOf("")}
     var incorrectLetters by remember {mutableStateOf("")}
     val image = when(incorrectCounter){
-        0 -> R.drawable.hangman
-    else -> R.drawable.hangman}
+        0 -> R.drawable.h0
+        1 -> R.drawable.h1
+        2 -> R.drawable.h2
+        3 -> R.drawable.h3
+        4 -> R.drawable.h4
+        5 -> R.drawable.h5
+        6 -> R.drawable.h6
+        7 -> R.drawable.h7
+        else -> {R.drawable.h0}}
 
 
     Column (
