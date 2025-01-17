@@ -4,6 +4,7 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -24,6 +25,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -94,6 +96,10 @@ public fun getWords(context: Context): MutableList<String>{
     return wordList
 }
 
+
+
+
+
 @Composable
 fun game(gameOverScreen: (String) -> Unit, welcomeScreen: () -> Unit, winPage: () -> Unit) {
 
@@ -108,6 +114,10 @@ fun game(gameOverScreen: (String) -> Unit, welcomeScreen: () -> Unit, winPage: (
     println(progress)
     var InputLetter by remember {mutableStateOf("")}
     var incorrectLetters by remember {mutableStateOf("")}
+    val image = when(incorrectCounter){
+        0 -> R.drawable.hangman
+    else -> R.drawable.hangman}
+
 
     Column (
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -123,6 +133,7 @@ fun game(gameOverScreen: (String) -> Unit, welcomeScreen: () -> Unit, winPage: (
             modifier = Modifier.padding(top = 100.dp),
             letterSpacing = 2.sp
         )
+
 
 
         // User InputLetter Field
@@ -154,7 +165,8 @@ fun game(gameOverScreen: (String) -> Unit, welcomeScreen: () -> Unit, winPage: (
                 } else{
                     if(InputLetter !in incorrectLetters){
                         incorrectCounter+=1
-                        incorrectLetters = "${incorrectLetters} ${InputLetter}"}
+                        incorrectLetters = "${incorrectLetters} ${InputLetter}"
+                    }
                     if (incorrectCounter == maxCounter){
                         // User has lost
                         gameOverScreen(word)
@@ -171,6 +183,8 @@ fun game(gameOverScreen: (String) -> Unit, welcomeScreen: () -> Unit, winPage: (
             Text(text="Submit")
         }
         Text(text="Incorrect Attempts: ${incorrectCounter}")
+        Image(painter = painterResource(id = image),
+            contentDescription = null)
         Text(text="Incorrect Letters:\n${incorrectLetters}")
         Button(
             onClick = {welcomeScreen()}
