@@ -1,7 +1,6 @@
 package com.example.hangman
 import android.content.Context
 import android.os.Bundle
-import android.renderscript.ScriptGroup.Input
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -26,7 +25,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -34,7 +32,6 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.hangman.ui.theme.HangmanTheme
-import java.io.File
 import java.io.IOException
 import kotlin.random.Random
 
@@ -66,12 +63,14 @@ fun App() {
             welcomePage(onNextScreen = {navController.navigate("game")})
         }
         composable (route = "game"){
-            game(gameOverScreen = {navController.navigate("gameOver")},
+            game(
+                gameOverScreen = { word: String -> navController.navigate("gameOver/${word}")},
                 welcomeScreen = {navController.navigate("welcomePage")},
                 {navController.navigate("winPage")})
         }
-        composable (route = "gameOver"){
-            gameOver(onNextScreen = {navController.navigate("game")},
+        composable (route = "gameOver/{word}"){
+            val word = it.arguments?.getString("word")
+            gameOver(word= word.toString(), onNextScreen = {navController.navigate("game")},
                 welcomeScreen = {navController.navigate("welcomePage")})
         }
         composable (route = "winPage"){
@@ -96,7 +95,7 @@ public fun getWords(context: Context): MutableList<String>{
 }
 
 @Composable
-fun game(gameOverScreen: () -> Unit, welcomeScreen: () -> Unit, winPage: () -> Unit) {
+fun game(gameOverScreen: (String) -> Unit, welcomeScreen: () -> Unit, winPage: () -> Unit) {
 
     val context = LocalContext.current
     val wordList = getWords(context)
@@ -158,7 +157,7 @@ fun game(gameOverScreen: () -> Unit, welcomeScreen: () -> Unit, winPage: () -> U
                         incorrectLetters = "${incorrectLetters} ${InputLetter}"}
                     if (incorrectCounter == maxCounter){
                         // User has lost
-                        gameOverScreen()
+                        gameOverScreen(word)
 
                     }
                 }
@@ -211,12 +210,12 @@ fun welcomePage(onNextScreen:()->Unit){
 }
 
 @Composable
-fun gameOver(onNextScreen: () -> Unit, welcomeScreen: () -> Unit){
+fun gameOver(word: String, onNextScreen: () -> Unit, welcomeScreen: () -> Unit){
     Column (
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = Modifier.fillMaxSize()
     ){
-        Text(text = "Game Over",
+        Text(text = "Game Over\nThe word was: $word",
             style = MaterialTheme.typography.headlineMedium,
             modifier = Modifier
                 .padding(top = 100.dp))
